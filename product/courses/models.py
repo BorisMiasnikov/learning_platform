@@ -1,5 +1,7 @@
 from django.db import models
 
+# from users.models import CustomUser
+
 
 class Course(models.Model):
     """Модель продукта - курса."""
@@ -17,8 +19,17 @@ class Course(models.Model):
         auto_now_add=False,
         verbose_name='Дата и время начала курса'
     )
-
-    # TODO
+    price = models.FloatField(
+        max_length=250,
+        default= 0,
+        verbose_name='Цена курса'
+    )
+    # students = models.ManyToManyField(
+    #     CustomUser,
+    #     through="Subscription",
+    #     verbose_name='Участники курса'
+    #
+    # )
 
     class Meta:
         verbose_name = 'Курс'
@@ -40,8 +51,10 @@ class Lesson(models.Model):
         max_length=250,
         verbose_name='Ссылка',
     )
-
-    # TODO
+    course_name = models.ForeignKey(
+        Course,
+        on_delete=models.CASCADE
+    )
 
     class Meta:
         verbose_name = 'Урок'
@@ -61,3 +74,5 @@ class Group(models.Model):
         verbose_name = 'Группа'
         verbose_name_plural = 'Группы'
         ordering = ('-id',)
+
+
