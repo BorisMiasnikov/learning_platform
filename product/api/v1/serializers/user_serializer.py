@@ -12,15 +12,18 @@ class CustomUserSerializer(UserSerializer):
 
     class Meta:
         model = User
+        fields = '__all__'
 
 
 class SubscriptionSerializer(serializers.ModelSerializer):
     """Сериализатор подписки."""
 
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
     # TODO
 
     class Meta:
         model = Subscription
         fields = (
-            # TODO
+            'balance',
+            'user'
         )

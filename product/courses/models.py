@@ -1,6 +1,5 @@
 from django.db import models
 
-# from users.models import CustomUser
 
 
 class Course(models.Model):
@@ -24,12 +23,7 @@ class Course(models.Model):
         default= 0,
         verbose_name='Цена курса'
     )
-    # students = models.ManyToManyField(
-    #     CustomUser,
-    #     through="Subscription",
-    #     verbose_name='Участники курса'
-    #
-    # )
+    # TODO
 
     class Meta:
         verbose_name = 'Курс'
@@ -68,6 +62,15 @@ class Lesson(models.Model):
 class Group(models.Model):
     """Модель группы."""
 
+    title = models.CharField(
+        max_length=250,
+        verbose_name='Название группы',
+    )
+    course = models.ForeignKey(
+        Course,
+        verbose_name='Курс группы',
+        on_delete=models.CASCADE
+    )
     # TODO
 
     class Meta:

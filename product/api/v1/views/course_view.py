@@ -12,7 +12,7 @@ from api.v1.serializers.course_serializer import (CourseSerializer,
                                                   LessonSerializer)
 from api.v1.serializers.user_serializer import SubscriptionSerializer
 from courses.models import Course
-from users.models import Subscription
+from users.models import Subscription, Balance
 
 
 class LessonViewSet(viewsets.ModelViewSet):
@@ -59,6 +59,9 @@ class CourseViewSet(viewsets.ModelViewSet):
     queryset = Course.objects.all()
     permission_classes = (ReadOnlyOrIsAdmin,)
 
+    def get_queryset(self):
+        return self.queryset.exclude(customuser=self.request.user.id)
+
     def get_serializer_class(self):
         if self.action in ['list', 'retrieve']:
             return CourseSerializer
@@ -71,10 +74,21 @@ class CourseViewSet(viewsets.ModelViewSet):
     )
     def pay(self, request, pk):
         """Покупка доступа к курсу (подписка на курс)."""
-
         # TODO
 
-        return Response(
-            data=data,
-            status=status.HTTP_201_CREATED
-        )
+        student_balance = Balance.objects.get(user=request.user).balance
+        course_price = self.queryset.get(id=pk).price
+        change = student_balance - course_price
+        if change >= 0:
+            Subscription.objects.create(
+                course=self.queryset.get(id=pk),
+                user=request.user
+            )
+            Balance.objects.filter(user=request.user).update(balance=change)
+            return Response(
+                status=status.HTTP_201_CREATED
+            )
+        else:
+            return Response(
+                status=status.HTTP_400_BAD_REQUEST
+            )

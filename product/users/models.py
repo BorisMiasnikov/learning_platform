@@ -1,8 +1,8 @@
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinValueValidator
 from django.db import models
-
 from courses.models import Course
+
 
 
 class CustomUser(AbstractUser):
@@ -20,6 +20,10 @@ class CustomUser(AbstractUser):
         'last_name',
         'password'
     )
+    courses = models.ManyToManyField(
+        Course,
+        through='Subscription'
+    )
 
     class Meta:
         verbose_name = 'Пользователь'
@@ -33,20 +37,14 @@ class CustomUser(AbstractUser):
 class Balance(models.Model):
     """Модель баланса пользователя."""
 
-    balance = models.IntegerField(
-        default=1000,
+    balance = models.FloatField(
+        default=1000.0,
         validators=[MinValueValidator(0)]
     )
     user = models.OneToOneField(
         CustomUser,
         on_delete=models.CASCADE
     )
-
-    def change_balance(self, value:int)->int:
-        user = AbstractUser.objects.filter(id=self.user)
-        if user.is_stuff:
-            self.balance = value
-            return self.balance
 
     class Meta:
         verbose_name = 'Баланс'
@@ -71,4 +69,3 @@ class Subscription(models.Model):
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
         ordering = ('-id',)
-
